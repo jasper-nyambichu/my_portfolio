@@ -319,7 +319,7 @@ export default function Hero() {
                 }}
               >
                 <Image
-               src="/Dickson.jpeg"
+               src="/profile.jpeg"
                alt="Portrait — full-stack developer"
                fill
                className="object-cover"

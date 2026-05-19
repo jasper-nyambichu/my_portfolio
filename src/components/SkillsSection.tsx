@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import SectionHeading from "./SectionHeading";
 import { useInView } from "@/hooks/useInView";
+import { TechIcon } from "./TechIcon";
+import { BarChart3, Gauge, Activity, Layers } from "lucide-react";
 
 const RINGS = [
   { name: "JavaScript", pct: 88 },
@@ -57,29 +59,52 @@ function Ring({ pct, name, active, idx }: { pct: number; name: string; active: b
   }, [active, pct, delay]);
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="relative" style={{ width: 128, height: 128 }}>
-        <svg width={128} height={128} className="-rotate-90">
-          <circle cx={64} cy={64} r={r} stroke="rgba(255,255,255,0.06)" strokeWidth={3} fill="none" />
+    <div className="flex flex-col items-center gap-3 group">
+      <div
+        className="relative transition-transform duration-500 group-hover:-translate-y-1"
+        style={{ width: 140, height: 140, perspective: 600 }}
+      >
+        <svg width={140} height={140} className="-rotate-90 absolute inset-0">
+          <defs>
+            <linearGradient id={`grad-${idx}`} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#E8C97A" />
+              <stop offset="100%" stopColor="#C9A84C" />
+            </linearGradient>
+          </defs>
+          <circle cx={70} cy={70} r={r} stroke="rgba(255,255,255,0.06)" strokeWidth={4} fill="none" />
           <circle
-            cx={64}
-            cy={64}
+            cx={70}
+            cy={70}
             r={r}
-            stroke="#C9A84C"
-            strokeWidth={3}
+            stroke={`url(#grad-${idx})`}
+            strokeWidth={4}
             fill="none"
             strokeLinecap="round"
             strokeDasharray={C}
             strokeDashoffset={C - (progress / 100) * C}
-            style={{ filter: "drop-shadow(0 0 6px rgba(201,168,76,0.4))" }}
+            style={{ filter: "drop-shadow(0 0 8px rgba(201,168,76,0.5))" }}
           />
         </svg>
+        {/* Glass orb */}
         <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ fontFamily: "Outfit", fontWeight: 600, fontSize: 24, color: "#C9A84C" }}
+          className="absolute inset-3 rounded-full flex flex-col items-center justify-center gap-1"
+          style={{
+            background:
+              "radial-gradient(circle at 30% 25%, rgba(255,255,255,0.12), rgba(255,255,255,0.02) 55%, rgba(0,0,0,0.45))",
+            border: "1px solid rgba(201,168,76,0.25)",
+            boxShadow:
+              "inset 0 1px 0 rgba(255,255,255,0.15), 0 10px 25px -10px rgba(0,0,0,0.7)",
+            backdropFilter: "blur(6px)",
+          }}
         >
-          <CountUp to={pct} active={active} delay={delay} />
-          <span style={{ fontSize: 14, marginLeft: 1 }}>%</span>
+          <TechIcon name={name} size={30} />
+          <div
+            className="flex items-baseline"
+            style={{ fontFamily: "Outfit", fontWeight: 600, fontSize: 16, color: "#C9A84C" }}
+          >
+            <CountUp to={pct} active={active} delay={delay} />
+            <span style={{ fontSize: 10, marginLeft: 1 }}>%</span>
+          </div>
         </div>
       </div>
       <span style={{ fontFamily: "Outfit", fontSize: 12, color: "#9C9488", letterSpacing: "0.05em" }}>
@@ -93,8 +118,11 @@ function Bar({ name, pct, active, idx }: { name: string; pct: number; active: bo
   const delay = idx * 80;
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="flex justify-between text-[12px]" style={{ fontFamily: "Outfit" }}>
-        <span style={{ color: "#F0EBE1" }}>{name}</span>
+      <div className="flex justify-between items-center text-[12px]" style={{ fontFamily: "Outfit" }}>
+        <span className="flex items-center gap-2" style={{ color: "#F0EBE1" }}>
+          <TechIcon name={name} size={16} />
+          {name}
+        </span>
         <span style={{ color: "#9C9488", fontFamily: "JetBrains Mono, monospace" }}>
           <CountUp to={pct} active={active} delay={delay} />%
         </span>
@@ -117,6 +145,13 @@ function Bar({ name, pct, active, idx }: { name: string; pct: number; active: bo
   );
 }
 
+const CATEGORY_ICONS: Record<string, typeof BarChart3> = {
+  Languages: Activity,
+  Frameworks: Layers,
+  Databases: Gauge,
+  Tools: BarChart3,
+};
+
 export default function SkillsSection() {
   const { ref, inView } = useInView<HTMLDivElement>(0.15);
   let barIdx = 0;
@@ -133,29 +168,45 @@ export default function SkillsSection() {
           </div>
           {/* Bars */}
           <div className="flex flex-col gap-8">
-            {BAR_GROUPS.map((g) => (
-              <div key={g.name} className="flex flex-col gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="w-px h-4" style={{ background: "#C9A84C" }} />
-                  <h3
-                    className="uppercase"
-                    style={{
-                      fontFamily: "Outfit",
-                      fontSize: 11,
-                      letterSpacing: "0.3em",
-                      color: "#9C9488",
-                    }}
-                  >
-                    {g.name}
-                  </h3>
+            {BAR_GROUPS.map((g) => {
+              const CIcon = CATEGORY_ICONS[g.name] ?? Layers;
+              return (
+                <div key={g.name} className="flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex items-center justify-center rounded-xl"
+                      style={{
+                        width: 32,
+                        height: 32,
+                        background:
+                          "radial-gradient(circle at 30% 25%, rgba(201,168,76,0.25), rgba(201,168,76,0.04) 70%)",
+                        border: "1px solid rgba(201,168,76,0.3)",
+                        boxShadow:
+                          "inset 0 1px 0 rgba(255,255,255,0.1), 0 6px 14px -8px rgba(0,0,0,0.7)",
+                      }}
+                    >
+                      <CIcon size={15} style={{ color: "#C9A84C" }} />
+                    </div>
+                    <h3
+                      className="uppercase"
+                      style={{
+                        fontFamily: "Outfit",
+                        fontSize: 11,
+                        letterSpacing: "0.3em",
+                        color: "#9C9488",
+                      }}
+                    >
+                      {g.name}
+                    </h3>
+                  </div>
+                  <div className="flex flex-col gap-3 pl-11">
+                    {g.items.map(([n, p]) => (
+                      <Bar key={n as string} name={n as string} pct={p as number} active={inView} idx={barIdx++} />
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-col gap-3 pl-4">
-                  {g.items.map(([n, p]) => (
-                    <Bar key={n as string} name={n as string} pct={p as number} active={inView} idx={barIdx++} />
-                  ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
