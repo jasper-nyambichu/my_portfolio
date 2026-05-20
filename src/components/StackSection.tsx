@@ -203,8 +203,8 @@ function Chip({
     <div
       className="absolute"
       style={{
-        left: 0,
-        top: 0,
+        left: "0px",
+        top: "0px",
         transform: `translate3d(${x}px, ${y}px, ${z}px) rotateY(${counterYaw}deg) rotateX(${counterPitch}deg) translate(-50%,-50%)`,
         transformStyle: "preserve-3d",
       }}

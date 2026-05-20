@@ -3,10 +3,10 @@
 import HeroSection     from '../src/components/Hero'
 import StackSphere     from '../src/components/StackSection'
 import SkillsAnalytics from '../src/components/SkillsSection'
-import ProjectsBento   from '@/src/components/ProjectsSection'
-import JourneyTimeline from '@/src/components/JourneySection'
-import ServicesGrid    from '@/src/components/ServicesSection'
-import ContactSection  from '@/src/components/ContactSection'
+import ProjectsBento   from '../src/components/ProjectsSection'
+import JourneyTimeline from '../src/components/JourneySection'
+import ServicesGrid    from '../src/components/ServicesSection'
+import ContactSection  from '../src/components/ContactSection'
 
 export default function Home() {
   return (

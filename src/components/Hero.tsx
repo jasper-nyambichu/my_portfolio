@@ -322,12 +322,13 @@ export default function Hero() {
                 }}
               >
                 <Image
-               src="/profile.jpeg"
-               alt="Portrait — full-stack developer"
-               fill
-               className="object-cover"
-               priority
-                />
+                 src="/profile.jpeg"
+                 alt="Portrait — full-stack developer"
+                 fill
+                 sizes="(max-width: 768px) 200px, 280px"
+                 className="object-cover"
+                 priority
+               />
               </div>
             </div>
 
