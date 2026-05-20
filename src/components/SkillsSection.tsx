@@ -61,10 +61,10 @@ function Ring({ pct, name, active, idx }: { pct: number; name: string; active: b
   return (
     <div className="flex flex-col items-center gap-3 group">
       <div
-        className="relative transition-transform duration-500 group-hover:-translate-y-1"
-        style={{ width: 140, height: 140, perspective: 600 }}
+         className="relative transition-transform duration-500 group-hover:-translate-y-1 w-[110px] h-[110px] sm:w-[140px] sm:h-[140px]"
+        style={{ perspective: 600 }}
       >
-        <svg width={140} height={140} className="-rotate-90 absolute inset-0">
+       <svg viewBox="0 0 140 140" className="-rotate-90 absolute inset-0 w-full h-full">
           <defs>
             <linearGradient id={`grad-${idx}`} x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#E8C97A" />
@@ -97,17 +97,17 @@ function Ring({ pct, name, active, idx }: { pct: number; name: string; active: b
             backdropFilter: "blur(6px)",
           }}
         >
-          <TechIcon name={name} size={30} />
+          <TechIcon name={name} size={26} />
           <div
             className="flex items-baseline"
-            style={{ fontFamily: "Outfit", fontWeight: 600, fontSize: 16, color: "#C9A84C" }}
+            style={{ fontFamily: "Outfit", fontWeight: 600, fontSize: 15, color: "#C9A84C" }}
           >
             <CountUp to={pct} active={active} delay={delay} />
             <span style={{ fontSize: 10, marginLeft: 1 }}>%</span>
           </div>
         </div>
       </div>
-      <span style={{ fontFamily: "Outfit", fontSize: 12, color: "#9C9488", letterSpacing: "0.05em" }}>
+      <span className="text-center" style={{ fontFamily: "Outfit", fontSize: 12, color: "#9C9488", letterSpacing: "0.05em" }}>
         {name}
       </span>
     </div>
@@ -153,13 +153,13 @@ const CATEGORY_ICONS: Record<string, typeof BarChart3> = {
 };
 
 export default function SkillsSection() {
-  const { ref, inView } = useInView<HTMLDivElement>(0.15);
+  const { ref, inView } = useInView<HTMLDivElement>(0.05);
   let barIdx = 0;
   return (
-    <section className="relative w-full py-32" style={{ backgroundColor: "#1A1814" }}>
-      <div ref={ref} className="relative mx-auto max-w-[1200px] px-8 flex flex-col gap-16">
+     <section className="relative w-full py-20 sm:py-28 md:py-32" style={{ backgroundColor: "#1A1814" }}>
+      <div ref={ref} className="relative mx-auto max-w-[1200px] px-4 sm:px-6 md:px-8 flex flex-col gap-12 sm:gap-16">
         <SectionHeading label="Expertise" title="Skills & Proficiency" align="left" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Rings */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-10 gap-x-4">
             {RINGS.map((r, i) => (

@@ -53,8 +53,30 @@ export default function StackSection() {
   const [yaw, setYaw] = useState(0);
   const [pitch, setPitch] = useState(-10);
   const containerRef = useRef<HTMLDivElement>(null);
-  const radius = 240;
-  const pts = useMemo(() => spherePoints(TECHS.length, radius), []);
+  const [size, setSize] = useState(520);
+  // Responsive radius based on container width
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const update = () => {
+      const w = el.clientWidth;
+      // Keep sphere comfortably inside the viewport, accounting for chip size
+      const chip = w < 480 ? 64 : 88;
+      const target = Math.max(140, Math.min(240, (w - chip - 24) / 2));
+      setSize(target);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const radius = size;
+  const pts = useMemo(() => spherePoints(TECHS.length, radius), [radius]);
+  const isCompact = size < 200;
+  const chipSize = isCompact ? 64 : 88;
+  const tileSize = isCompact ? 48 : 64;
+  const iconSize = isCompact ? 28 : 38;
+  const containerHeight = Math.round(radius * 2 + chipSize + 40);
 
   useEffect(() => {
     let raf = 0;
@@ -69,7 +91,7 @@ export default function StackSection() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  const onMouseMove = (e: React.MouseEvent) => {
+  const onPointerMove = (e: React.PointerEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     const cx = (e.clientX - rect.left) / rect.width - 0.5;
@@ -79,16 +101,16 @@ export default function StackSection() {
   };
 
   return (
-    <section className="relative w-full py-32 overflow-hidden" style={{ backgroundColor: "#0F0E0D" }}>
+    <section className="relative w-full py-20 sm:py-28 md:py-32 overflow-hidden" style={{ backgroundColor: "#0F0E0D" }}>
       <BackgroundOrbs />
-      <div className="relative mx-auto max-w-[1200px] px-8 flex flex-col items-center gap-16">
+      <div className="relative mx-auto max-w-[1200px] px-4 sm:px-6 md:px-8 flex flex-col items-center gap-12 sm:gap-16">
         <SectionHeading label="My Stack" title="Tools I Build With" />
 
         <div
           ref={containerRef}
-          onMouseMove={onMouseMove}
-          className="relative w-full"
-          style={{ height: 520, perspective: 1200 }}
+          onPointerMove={onPointerMove}
+          className="relative w-full touch-none"
+          style={{ height: containerHeight, perspective: 1200 }}
         >
           <div
             className="absolute left-1/2 top-1/2"
@@ -96,13 +118,26 @@ export default function StackSection() {
               transformStyle: "preserve-3d",
               transform: `translate(-50%,-50%) rotateX(${pitch}deg) rotateY(${yaw}deg)`,
               transition: "transform 0.1s linear",
+              willChange: "transform",
             }}
           >
             {TECHS.map((tech, i) => {
               const p = pts[i];
               const active = tech.category === tab;
               return (
-                <Chip key={tech.name} tech={tech} active={active} x={p.x} y={p.y} z={p.z} counterYaw={-yaw} counterPitch={-pitch} />
+                <Chip
+                  key={tech.name}
+                  tech={tech}
+                  active={active}
+                  x={p.x}
+                  y={p.y}
+                  z={p.z}
+                  counterYaw={-yaw}
+                  counterPitch={-pitch}
+                  chipSize={chipSize}
+                  tileSize={tileSize}
+                  iconSize={iconSize}
+                />
               );
             })}
           </div>
@@ -148,6 +183,9 @@ function Chip({
   z,
   counterYaw,
   counterPitch,
+  chipSize,
+  tileSize,
+  iconSize,
 }: {
   tech: Tech;
   active: boolean;
@@ -156,6 +194,9 @@ function Chip({
   z: number;
   counterYaw: number;
   counterPitch: number;
+  chipSize: number;
+  tileSize: number;
+  iconSize: number;
 }) {
   const [hover, setHover] = useState(false);
   return (
@@ -173,8 +214,8 @@ function Chip({
         onMouseLeave={() => setHover(false)}
         className="relative flex flex-col items-center justify-center gap-2 transition-all duration-300"
         style={{
-          width: 88,
-          height: 88,
+          width: chipSize,
+          height: chipSize,
           transform: hover ? "scale(1.18)" : "scale(1)",
           opacity: active ? 1 : 0.55,
           cursor: "default",
@@ -183,8 +224,8 @@ function Chip({
         <div
           className="relative flex items-center justify-center rounded-2xl"
           style={{
-            width: 64,
-            height: 64,
+            width: tileSize,
+            height: tileSize,
             background:
               "radial-gradient(circle at 30% 25%, rgba(255,255,255,0.14), rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.35))",
             border: `1px solid ${active || hover ? "rgba(201,168,76,0.7)" : "rgba(201,168,76,0.18)"}`,
@@ -200,8 +241,8 @@ function Chip({
             alt={tech.name}
             draggable={false}
             style={{
-              width: 38,
-              height: 38,
+              width: iconSize,
+              height: iconSize,
               filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.55))",
               userSelect: "none",
             }}

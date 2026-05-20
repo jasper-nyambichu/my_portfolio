@@ -33,15 +33,18 @@ export default function JourneySection() {
   }, []);
 
   return (
-    <section className="relative w-full py-32" style={{ backgroundColor: "#1A1814" }}>
-      <div className="relative mx-auto max-w-[1100px] px-8 flex flex-col gap-20">
+    <section className="relative w-full py-20 sm:py-28 md:py-32" style={{ backgroundColor: "#1A1814" }}>
+      <div className="relative mx-auto max-w-[1100px] px-4 sm:px-6 md:px-8 flex flex-col gap-16 sm:gap-20">
         <SectionHeading label="My Story" title="The Journey So Far" />
 
         <div ref={ref} className="relative">
-          {/* center line */}
-          <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px" style={{ background: "rgba(156,148,136,0.18)" }} />
+          {/* center line (desktop) / left line (mobile) */}
           <div
-            className="absolute left-1/2 top-0 -translate-x-1/2 w-px"
+            className="absolute top-0 bottom-0 w-px left-4 md:left-1/2 md:-translate-x-1/2"
+            style={{ background: "rgba(156,148,136,0.18)" }}
+          />
+          <div
+            className="absolute top-0 w-px left-4 md:left-1/2 md:-translate-x-1/2"
             style={{
               background: "linear-gradient(180deg, #C9A84C, rgba(201,168,76,0.3))",
               height: `${progress * 100}%`,
@@ -50,7 +53,7 @@ export default function JourneySection() {
             }}
           />
 
-          <div className="flex flex-col gap-16">
+          <div className="flex flex-col gap-12 sm:gap-16">
             {EVENTS.map((e, i) => {
               const left = i % 2 === 0;
               const { icon, ...rest } = e;
@@ -91,7 +94,7 @@ function TimelineRow({
   }, []);
 
   return (
-    <div ref={rowRef} className="relative grid grid-cols-2 gap-8 items-center">
+    <div ref={rowRef} className="relative md:grid md:grid-cols-2 md:gap-8 md:items-center pl-12 md:pl-0">
       {/* Node */}
       <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center" style={{ top: 12 }}>
         {current && (
@@ -117,9 +120,10 @@ function TimelineRow({
         />
       </div>
 
+
       {/* Card */}
       <div
-        className={left ? "col-start-1 pr-12" : "col-start-2 pl-12"}
+        className={left ? "md:col-start-1 md:pr-12" : "md:col-start-2 md:pl-12"}
         style={{
           transform: vis ? "translateX(0)" : `translateX(${left ? -30 : 30}px)`,
           opacity: vis ? 1 : 0,

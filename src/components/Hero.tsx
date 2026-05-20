@@ -44,9 +44,11 @@ function Typewriter() {
       className="italic"
       style={{
         fontFamily: "Cormorant Garamond, serif",
-        fontSize: 28,
+        fontSize: "clamp(20px, 4.5vw, 28px)",
         color: "#C9A84C",
-        minHeight: 40,
+        minHeight: "1.6em",
+        lineHeight: 1.3,
+        wordBreak: "break-word",
       }}
     >
       {text}
@@ -54,7 +56,7 @@ function Typewriter() {
         className="inline-block ml-1 align-middle"
         style={{
           width: 2,
-          height: 26,
+          height: "0.9em",
           background: "#C9A84C",
           animation: "blink 1s steps(1) infinite",
         }}
@@ -141,13 +143,13 @@ export default function Hero() {
       <CornerBracket pos="br" />
 
       {/* Content */}
-      <div className="relative mx-auto max-w-[1200px] min-h-screen px-8 py-20 flex items-center">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center w-full">
+      <div className="relative mx-auto max-w-[1200px] min-h-screen px-4 sm:px-6 md:px-8 py-24 sm:py-20 flex items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center w-full">
           {/* LEFT */}
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-6 sm:gap-8 text-center md:text-left items-center md:items-start order-2 md:order-1">
             {/* Pill badge */}
             <div
-              className="inline-flex items-center gap-2 self-start rounded-full px-3 py-1.5"
+              className="inline-flex items-center gap-2 rounded-full px-3 py-1.5"
               style={{
                 background: "rgba(255,255,255,0.03)",
                 border: "1px solid rgba(201,168,76,0.25)",
@@ -172,7 +174,7 @@ export default function Hero() {
             <h1
               style={{
                 fontFamily: "Cormorant Garamond, serif",
-                fontSize: 72,
+                fontSize: "clamp(40px, 8vw, 72px)",
                 lineHeight: 1.05,
                 color: "#F0EBE1",
                 fontWeight: 500,
@@ -199,7 +201,7 @@ export default function Hero() {
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
               <button
                 className="group px-6 py-3 rounded-md transition-all duration-300 text-sm tracking-wide"
                 style={{
@@ -237,7 +239,7 @@ export default function Hero() {
             </div>
 
             {/* Social row */}
-            <div className="flex items-center gap-5 pt-2">
+            <div className="flex flex-wrap items-center gap-5 pt-2 justify-center md:justify-start">
               {[GithubIcon, LinkedinIcon, XIcon].map((Icon, i) => (
                 <a
                   key={i}
@@ -275,8 +277,9 @@ export default function Hero() {
           </div>
 
           {/* RIGHT */}
-          <div className="flex flex-col items-center gap-10">
-            <div className="relative" style={{ width: 360, height: 360 }}>
+          <div className="flex flex-col items-center gap-8 sm:gap-10 order-1 md:order-2 w-full">
+            <div className="relative w-[min(80vw,360px)] aspect-square">
+
               {/* Dashed orbit */}
               <div
                 className="absolute inset-0 rounded-full"
