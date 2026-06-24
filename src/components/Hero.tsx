@@ -1,10 +1,19 @@
 'use client';
 import { useEffect, useState } from "react";
-// ✅ Replace with
 import { Download, ArrowDown } from "lucide-react";
 import { GithubIcon, LinkedinIcon, XIcon } from "@/components/SocialIcons";
 import Image from "next/image";
-import profileImg from "@/assets/profile.jpg";
+
+const GITHUB_URL   = "https://github.com/jasper-nyambichu";
+const LINKEDIN_URL = "https://www.linkedin.com/in/dickson-moseti-94968b410";
+const X_URL        = "https://x.com"; // update if you have an X/Twitter handle
+const CV_URL       = "/assets/Dickson_Moseti_CV.pdf"; // drop your CV PDF into /public/assets/
+
+const SOCIAL_LINKS = [
+  { Icon: GithubIcon,   href: GITHUB_URL   },
+  { Icon: LinkedinIcon, href: LINKEDIN_URL },
+  { Icon: XIcon,        href: X_URL        },
+];
 
 const ROLES = [
   "Full-Stack Developer",
@@ -100,39 +109,27 @@ export default function Hero() {
       <div
         className="absolute pointer-events-none rounded-full"
         style={{
-          width: 520,
-          height: 520,
-          top: "-10%",
-          left: "-8%",
+          width: 520, height: 520, top: "-10%", left: "-8%",
           background: "radial-gradient(circle, rgba(201,168,76,0.18), transparent 70%)",
-          filter: "blur(80px)",
-          opacity: 0.6,
+          filter: "blur(80px)", opacity: 0.6,
           animation: "drift-1 22s ease-in-out infinite",
         }}
       />
       <div
         className="absolute pointer-events-none rounded-full"
         style={{
-          width: 600,
-          height: 600,
-          bottom: "-15%",
-          right: "-10%",
+          width: 600, height: 600, bottom: "-15%", right: "-10%",
           background: "radial-gradient(circle, rgba(201,168,76,0.16), transparent 70%)",
-          filter: "blur(100px)",
-          opacity: 0.55,
+          filter: "blur(100px)", opacity: 0.55,
           animation: "drift-2 28s ease-in-out infinite",
         }}
       />
       <div
         className="absolute pointer-events-none rounded-full"
         style={{
-          width: 420,
-          height: 420,
-          top: "40%",
-          left: "45%",
+          width: 420, height: 420, top: "40%", left: "45%",
           background: "radial-gradient(circle, rgba(201,168,76,0.12), transparent 70%)",
-          filter: "blur(90px)",
-          opacity: 0.5,
+          filter: "blur(90px)", opacity: 0.5,
           animation: "drift-3 32s ease-in-out infinite",
         }}
       />
@@ -145,9 +142,10 @@ export default function Hero() {
       {/* Content */}
       <div className="relative mx-auto max-w-[1200px] min-h-screen px-4 sm:px-6 md:px-8 py-24 sm:py-20 flex items-center">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center w-full">
+
           {/* LEFT */}
           <div className="flex flex-col gap-6 sm:gap-8 text-center md:text-left items-center md:items-start order-2 md:order-1">
-            {/* Pill badge */}
+            {/* Availability pill */}
             <div
               className="inline-flex items-center gap-2 rounded-full px-3 py-1.5"
               style={{
@@ -157,15 +155,9 @@ export default function Hero() {
             >
               <span
                 className="w-2 h-2 rounded-full"
-                style={{
-                  background: "#4ade80",
-                  boxShadow: "0 0 8px #4ade80",
-                }}
+                style={{ background: "#4ade80", boxShadow: "0 0 8px #4ade80" }}
               />
-              <span
-                className="text-xs tracking-wide"
-                style={{ color: "#C9A84C", fontFamily: "Outfit" }}
-              >
+              <span className="text-xs tracking-wide" style={{ color: "#C9A84C", fontFamily: "Outfit" }}>
                 Available for opportunities
               </span>
             </div>
@@ -202,13 +194,10 @@ export default function Hero() {
 
             {/* CTAs */}
             <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-              <button
-                className="group px-6 py-3 rounded-md transition-all duration-300 text-sm tracking-wide"
-                style={{
-                  border: "1px solid #C9A84C",
-                  color: "#C9A84C",
-                  background: "transparent",
-                }}
+              <a
+                href="#projects"
+                className="px-6 py-3 rounded-md transition-all duration-300 text-sm tracking-wide"
+                style={{ border: "1px solid #C9A84C", color: "#C9A84C", background: "transparent" }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "#C9A84C";
                   e.currentTarget.style.color = "#0F0E0D";
@@ -219,57 +208,46 @@ export default function Hero() {
                 }}
               >
                 View My Work
-              </button>
-              <button
+              </a>
+              <a
+                href="#contact"
                 className="px-6 py-3 rounded-md transition-all duration-300 text-sm tracking-wide"
                 style={{
                   background: "rgba(255,255,255,0.03)",
                   border: "1px solid rgba(255,255,255,0.1)",
                   color: "#F0EBE1",
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.35)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.35)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
               >
                 Hire Me
-              </button>
+              </a>
             </div>
 
             {/* Social row */}
             <div className="flex flex-wrap items-center gap-5 pt-2 justify-center md:justify-start">
-              {[GithubIcon, LinkedinIcon, XIcon].map((Icon, i) => (
+              {SOCIAL_LINKS.map(({ Icon, href }, i) => (
                 <a
                   key={i}
-                  href="#"
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="transition-colors"
                   style={{ color: "#5C574F" }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#C9A84C")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "#5C574F")
-                  }
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#C9A84C")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#5C574F")}
                 >
                   <Icon size={18} />
                 </a>
               ))}
-              <span
-                className="h-4 w-px"
-                style={{ background: "rgba(255,255,255,0.12)" }}
-              />
+              <span className="h-4 w-px" style={{ background: "rgba(255,255,255,0.12)" }} />
               <a
-                href="#"
+                href={CV_URL}
+                download
                 className="inline-flex items-center gap-1.5 text-sm transition-colors"
                 style={{ color: "#9C9488", fontFamily: "Outfit" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = "#C9A84C")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = "#9C9488")
-                }
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#C9A84C")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#9C9488")}
               >
                 Download CV <Download size={14} />
               </a>
@@ -279,7 +257,6 @@ export default function Hero() {
           {/* RIGHT */}
           <div className="flex flex-col items-center gap-8 sm:gap-10 order-1 md:order-2 w-full">
             <div className="relative w-[min(80vw,360px)] aspect-square">
-
               {/* Dashed orbit */}
               <div
                 className="absolute inset-0 rounded-full"
@@ -291,17 +268,12 @@ export default function Hero() {
                 <span
                   className="absolute rounded-full"
                   style={{
-                    width: 8,
-                    height: 8,
-                    background: "#C9A84C",
-                    top: -4,
-                    left: "50%",
-                    transform: "translateX(-50%)",
+                    width: 8, height: 8, background: "#C9A84C",
+                    top: -4, left: "50%", transform: "translateX(-50%)",
                     boxShadow: "0 0 10px #C9A84C",
                   }}
                 />
               </div>
-
               {/* Inner rotating ring */}
               <div
                 className="absolute rounded-full"
@@ -311,7 +283,6 @@ export default function Hero() {
                   animation: "spin-rev 60s linear infinite",
                 }}
               />
-
               {/* Photo */}
               <div
                 className="absolute rounded-full overflow-hidden"
@@ -322,13 +293,13 @@ export default function Hero() {
                 }}
               >
                 <Image
-                 src="/profile.jpeg"
-                 alt="Portrait — full-stack developer"
-                 fill
-                 sizes="(max-width: 768px) 200px, 280px"
-                 className="object-cover"
-                 priority
-               />
+                  src="/profile.jpeg"
+                  alt="Portrait — full-stack developer"
+                  fill
+                  sizes="(max-width: 768px) 200px, 280px"
+                  className="object-cover"
+                  priority
+                />
               </div>
             </div>
 
@@ -352,26 +323,10 @@ export default function Hero() {
                   className="px-6 py-4 text-center rounded-xl"
                   style={{ background: "rgba(255,255,255,0.02)" }}
                 >
-                  <div
-                    style={{
-                      fontFamily: "Cormorant Garamond, serif",
-                      fontSize: 32,
-                      color: "#C9A84C",
-                      lineHeight: 1,
-                    }}
-                  >
+                  <div style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 32, color: "#C9A84C", lineHeight: 1 }}>
                     {s.n}
                   </div>
-                  <div
-                    style={{
-                      fontFamily: "Outfit",
-                      fontSize: 11,
-                      color: "#9C9488",
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
-                      marginTop: 6,
-                    }}
-                  >
+                  <div style={{ fontFamily: "Outfit", fontSize: 11, color: "#9C9488", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>
                     {s.l}
                   </div>
                 </div>
@@ -383,29 +338,16 @@ export default function Hero() {
 
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-        <span
-          className="text-[10px] tracking-[0.3em] uppercase"
-          style={{ color: "rgba(240,235,225,0.3)", fontFamily: "Outfit" }}
-        >
+        <span className="text-[10px] tracking-[0.3em] uppercase" style={{ color: "rgba(240,235,225,0.3)", fontFamily: "Outfit" }}>
           Scroll
         </span>
         <div
           className="flex items-start justify-center rounded-full"
-          style={{
-            width: 22,
-            height: 36,
-            border: "1px solid rgba(201,168,76,0.4)",
-            padding: 4,
-          }}
+          style={{ width: 22, height: 36, border: "1px solid rgba(201,168,76,0.4)", padding: 4 }}
         >
           <span
             className="rounded-full"
-            style={{
-              width: 4,
-              height: 6,
-              background: "#C9A84C",
-              animation: "scroll-bounce 1.8s ease-in-out infinite",
-            }}
+            style={{ width: 4, height: 6, background: "#C9A84C", animation: "scroll-bounce 1.8s ease-in-out infinite" }}
           />
         </div>
         <ArrowDown size={12} style={{ color: "rgba(201,168,76,0.4)" }} />

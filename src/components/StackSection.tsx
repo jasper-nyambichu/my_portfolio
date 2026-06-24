@@ -205,7 +205,7 @@ function Chip({
       style={{
         left: "0px",
         top: "0px",
-        transform: `translate3d(${x}px, ${y}px, ${z}px) rotateY(${counterYaw}deg) rotateX(${counterPitch}deg) translate(-50%,-50%)`,
+        transform: `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, ${z.toFixed(2)}px) rotateY(${counterYaw.toFixed(2)}deg) rotateX(${counterPitch.toFixed(2)}deg) translate(-50%,-50%)`,
         transformStyle: "preserve-3d",
       }}
     >

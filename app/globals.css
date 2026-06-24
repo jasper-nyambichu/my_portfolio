@@ -268,6 +268,21 @@
 }
 
 /* ══════════════════════════════════════════════════════════════
+   MARQUEE — GPU-composited tech stack scroll
+   Runs entirely on the compositor thread; never blocks scroll.
+   ══════════════════════════════════════════════════════════════ */
+
+@keyframes marquee-ltr {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes marquee-rtl {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+/* ══════════════════════════════════════════════════════════════
    ANIMATION UTILITY CLASSES
    ══════════════════════════════════════════════════════════════ */
 
@@ -292,6 +307,54 @@
 .slide-in-from-bottom-2 { animation: slide-in-from-bottom 0.2s ease     both; }
 .slide-in-from-left-2  { animation: slide-in-from-left   0.2s ease      both; }
 .slide-in-from-right-2 { animation: slide-in-from-right  0.2s ease      both; }
+
+/* Marquee utilities — use these classes directly in StackSection */
+.marquee-viewport {
+  overflow: hidden;
+  /* Isolates the marquee's overflow from the scroll container's paint boundary */
+  contain: strict;
+  /* Edge fade masks so icons appear to scroll into/out of nothing */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  /* GPU layer: transform-only animation never triggers layout or paint */
+  will-change: transform;
+  animation: marquee-ltr 32s linear infinite;
+}
+
+.marquee-track--reverse {
+  animation: marquee-rtl 28s linear infinite;
+}
+
+/* Pause on hover so users can read icon labels */
+.marquee-viewport:hover .marquee-track,
+.marquee-viewport:hover .marquee-track--reverse {
+  animation-play-state: paused;
+}
+
+/* Honour user's motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .marquee-track--reverse {
+    animation: none;
+  }
+}
 
 /* ══════════════════════════════════════════════════════════════
    COMPONENT UTILITIES
