@@ -65,132 +65,25 @@ const PROJECTS: Project[] = [
     liveUrl: "https://tuinuanedigitals.vercel.app",
     githubUrl: "https://github.com/jasper-nyambichu",
   },
+  {
+    name: "Fahari",
+    desc: "A high-end digital presence for a luxury boutique hotel and restaurant — featuring room reservations, fine-dining table bookings, an immersive gallery, and curated experiences. Designed to evoke elegance and draw guests in from the very first scroll.",
+    stack: ["Next.js", "TypeScript", "Tailwind", "Vercel"],
+    accent: "linear-gradient(135deg, #2a1e10 0%, #0F0E0D 60%)",
+    liveUrl: "https://fahari-five.vercel.app",
+    githubUrl: "https://github.com/jasper-nyambichu",
+  },
 ];
 
 const GITHUB_URL = "https://github.com/jasper-nyambichu";
 const LINKEDIN_URL = "https://www.linkedin.com/in/dickson-moseti-94968b410";
 
-// The virtual desktop width we render the iframe at before scaling it down.
-const FRAME_W = 1280;
-
-/**
- * ScaledIframe
- * ------------
- * Renders an iframe at FRAME_W × frameH then uses a CSS scale() transform
- * to shrink it so it fills the card's actual pixel width.
- *
- * Key fixes vs the original:
- * 1. The wrapper uses `aspectRatio` for its initial size so the card never
- *    collapses to 0 height before the ResizeObserver fires.
- * 2. The iframe is absolutely positioned inside the wrapper so it can never
- *    escape its clipping boundary regardless of scale timing.
- * 3. The wrapper's explicit `height` is derived from `scale × frameH` once
- *    the observer has measured the container — this is the single source of
- *    truth for height; no outer div also tries to set aspectRatio.
- */
-function ScaledIframe({
-  url,
-  frameH,
-  onLoad,
-  onError,
-}: {
-  url: string;
-  frameH: number;
-  onLoad: () => void;
-  onError: () => void;
-}) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const roRef = useRef<ResizeObserver | null>(null);
-  const [scale, setScale] = useState<number | null>(null);
-
-  useEffect(() => {
-    const el = wrapperRef.current;
-    if (!el) return;
-
-    const update = (w: number) => {
-      if (w > 0) setScale(w / FRAME_W);
-    };
-
-    // Read synchronously after first paint so cards don't flash.
-    update(el.getBoundingClientRect().width);
-
-    roRef.current = new ResizeObserver(([entry]) => {
-      update(entry.contentRect.width);
-    });
-    roRef.current.observe(el);
-
-    return () => roRef.current?.disconnect();
-  }, []);
-
-  // While scale is unknown, hold space with the correct aspect ratio so the
-  // card never has a 0-height preview area.
-  const wrapperStyle: React.CSSProperties =
-    scale === null
-      ? {
-          width: "100%",
-          aspectRatio: `${FRAME_W} / ${frameH}`,
-          position: "relative",
-          overflow: "hidden",
-        }
-      : {
-          width: "100%",
-          // Explicit pixel height derived from the true scale — single source
-          // of truth. No outer container should also set aspectRatio.
-          height: Math.round(frameH * scale),
-          position: "relative",
-          overflow: "hidden",
-        };
-
-  return (
-    <div ref={wrapperRef} style={wrapperStyle}>
-      {scale !== null && (
-        <iframe
-          src={url}
-          title={url}
-          scrolling="no"
-          loading="lazy"
-          onLoad={onLoad}
-          onError={onError}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: FRAME_W,
-            height: frameH,
-            border: "none",
-            transformOrigin: "top left",
-            transform: `scale(${scale})`,
-            // Pointer events disabled so card tilt/hover still works.
-            pointerEvents: "none",
-            userSelect: "none",
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
-/**
- * Fallback shown when no URL is provided or the iframe fails to load.
- * Uses the same aspect ratio as the iframe would have so the card shape
- * stays consistent across all states.
- */
-function PreviewFallback({
-  accent,
-  title,
-  frameH,
-}: {
-  accent?: string;
-  title: string;
-  frameH: number;
-}) {
+// ─── Fallback gradient shown when iframe is blocked or URL is missing ─────────
+function PreviewFallback({ accent, title }: { accent?: string; title: string }) {
   return (
     <div
-      className="w-full relative overflow-hidden"
-      style={{
-        background: accent ?? "linear-gradient(135deg, #1a1814, #0F0E0D)",
-        aspectRatio: `${FRAME_W} / ${frameH}`,
-      }}
+      className="absolute inset-0"
+      style={{ background: accent ?? "linear-gradient(135deg, #1a1814, #0F0E0D)" }}
     >
       <div
         className="absolute inset-0"
@@ -199,109 +92,104 @@ function PreviewFallback({
             "radial-gradient(ellipse at 30% 20%, rgba(201,168,76,0.18), transparent 60%)",
         }}
       />
-      {/* Fake traffic lights */}
-      <div className="absolute top-4 left-4 flex gap-1.5">
-        <span className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.15)" }} />
-        <span className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.15)" }} />
-        <span className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(201,168,76,0.5)" }} />
-      </div>
       <div className="absolute inset-0 flex items-center justify-center">
         <span
           style={{
             fontFamily: "Cormorant Garamond, serif",
-            fontSize: 36,
-            color: "rgba(240,235,225,0.4)",
+            fontSize: "clamp(18px, 3vw, 36px)",
+            color: "rgba(240,235,225,0.35)",
             fontStyle: "italic",
           }}
         >
           {title}
         </span>
       </div>
-      <div
-        className="absolute bottom-0 left-0 right-0 h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent)",
-        }}
-      />
     </div>
   );
 }
 
-/**
- * LivePreview
- * -----------
- * Orchestrates the three possible preview states:
- *   1. No URL / load failure → PreviewFallback
- *   2. Loading             → shimmer overlay on top of ScaledIframe
- *   3. Loaded              → ScaledIframe (shimmer hidden)
- *
- * IMPORTANT: This component owns NO height/aspectRatio of its own.
- * It lets ScaledIframe (or PreviewFallback) define the height so there
- * is exactly one authority on that dimension.
- */
+// ─── Live iframe preview that scales to fill any container size ───────────────
+//
+// Strategy:
+//   1. The outer wrapper is a block div with position:relative and a fixed
+//      aspect ratio enforced via padding-bottom (%). This means it always has
+//      a defined pixel height before any JS runs — no overlap.
+//   2. Inside that, we place an iframe at 1280 × 800 and use a ResizeObserver
+//      to track the wrapper's actual pixel width, then apply CSS scale() so
+//      the iframe shrinks to exactly fill the wrapper. No layout thrashing.
+//   3. overflow:hidden on the wrapper clips any sub-pixel bleed.
+
+const IFRAME_W = 1280;
+const IFRAME_H = 800;
+
 function LivePreview({
   url,
   accent,
   title,
-  featured,
 }: {
   url?: string;
   accent?: string;
   title: string;
-  featured?: boolean;
 }) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0); // 0 = not measured yet
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  const frameH = featured ? 640 : 800;
-  const fallbackBg = accent ?? "linear-gradient(135deg, #1a1814, #0F0E0D)";
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el || !url) return;
 
-  if (!url || failed) {
-    return (
-      <PreviewFallback accent={accent} title={title} frameH={frameH} />
-    );
-  }
+    const measure = () => {
+      const w = el.getBoundingClientRect().width;
+      if (w > 0) setScale(w / IFRAME_W);
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [url]);
+
+  // Aspect ratio: 16:9 expressed as padding-bottom percentage
+  // paddingBottom = (H/W)*100 = (800/1280)*100 = 62.5%
+  const ASPECT_PB = `${(IFRAME_H / IFRAME_W) * 100}%`;
 
   return (
-    // ✅ width: 100%, overflow: hidden — NO height or aspectRatio here.
-    //    ScaledIframe is the single source of truth for height.
-    <div className="w-full relative overflow-hidden">
-      {/* Loading shimmer — absolutely fills whatever height ScaledIframe sets */}
-      {!loaded && (
+    /*
+      Outer shell — block-level, takes full card width, height is driven by
+      padding-bottom so it is always defined before JS fires.
+    */
+    <div
+      ref={wrapperRef}
+      className="relative w-full overflow-hidden"
+      style={{ paddingBottom: ASPECT_PB }}
+    >
+      {/* Fallback / loading layer — sits in the same absolute space */}
+      {(!url || failed || scale === 0) && (
+        <PreviewFallback accent={accent} title={title} />
+      )}
+
+      {/* Loading shimmer while iframe is fetching */}
+      {url && !failed && !loaded && scale > 0 && (
         <div
           className="absolute inset-0 z-10 animate-pulse"
-          style={{ background: fallbackBg }}
+          style={{ background: accent ?? "linear-gradient(135deg, #1a1814, #0F0E0D)" }}
         >
           <div
             className="absolute inset-0"
             style={{
               background:
-                "radial-gradient(ellipse at 30% 20%, rgba(201,168,76,0.12), transparent 60%)",
+                "radial-gradient(ellipse at 30% 20%, rgba(201,168,76,0.1), transparent 60%)",
             }}
           />
-          <div className="absolute top-4 left-4 flex gap-1.5">
-            <span
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ background: "rgba(255,255,255,0.15)" }}
-            />
-            <span
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ background: "rgba(255,255,255,0.15)" }}
-            />
-            <span
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ background: "rgba(201,168,76,0.5)" }}
-            />
-          </div>
           <div className="absolute inset-0 flex items-center justify-center">
             <span
               style={{
                 fontFamily: "Cormorant Garamond, serif",
-                fontSize: 22,
+                fontSize: "clamp(14px, 2vw, 20px)",
                 color: "rgba(240,235,225,0.3)",
                 fontStyle: "italic",
-                letterSpacing: "0.05em",
               }}
             >
               Loading preview…
@@ -310,33 +198,99 @@ function LivePreview({
         </div>
       )}
 
-      <ScaledIframe
-        url={url}
-        frameH={frameH}
-        onLoad={() => setLoaded(true)}
-        onError={() => setFailed(true)}
-      />
+      {/* The actual iframe — only rendered once we have a valid scale */}
+      {url && !failed && scale > 0 && (
+        <iframe
+          src={url}
+          title={title}
+          scrolling="no"
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          onError={() => setFailed(true)}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: IFRAME_W,
+            height: IFRAME_H,
+            border: "none",
+            transformOrigin: "top left",
+            transform: `scale(${scale})`,
+            // Pointer events off so card hover/tilt still works
+            pointerEvents: "none",
+            userSelect: "none",
+          }}
+        />
+      )}
 
-      {/* Bottom vignette — blends preview into card body */}
+      {/* Bottom fade vignette */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-20 z-10 pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none"
         style={{
-          background:
-            "linear-gradient(to bottom, transparent, rgba(15,14,13,0.55))",
-        }}
-      />
-      {/* Gold hairline */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-px z-10 pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent)",
+          height: "30%",
+          background: "linear-gradient(to bottom, transparent, rgba(15,14,13,0.6))",
         }}
       />
     </div>
   );
 }
 
+// ─── Fake browser chrome bar ──────────────────────────────────────────────────
+function BrowserBar({ url }: { url: string }) {
+  return (
+    <div
+      className="flex items-center gap-2 px-3 py-1.5 shrink-0"
+      style={{
+        background: "rgba(15,14,13,0.82)",
+        backdropFilter: "blur(8px)",
+        borderBottom: "1px solid rgba(201,168,76,0.15)",
+      }}
+    >
+      {/* Traffic lights */}
+      <div className="flex gap-1.5 shrink-0">
+        <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#FF5F57" }} />
+        <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#FFBD2E" }} />
+        <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#28CA41" }} />
+      </div>
+      {/* URL pill */}
+      <div
+        className="flex items-center gap-1.5 min-w-0 flex-1 px-2.5 py-0.5 rounded"
+        style={{
+          background: "rgba(255,255,255,0.05)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          maxWidth: 300,
+          margin: "0 auto",
+        }}
+      >
+        {/* Lock icon */}
+        <svg
+          width={9}
+          height={9}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="rgba(201,168,76,0.7)"
+          strokeWidth={2.5}
+          className="shrink-0"
+        >
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        <span
+          className="truncate"
+          style={{
+            fontFamily: "Outfit, monospace",
+            fontSize: 10,
+            color: "rgba(240,235,225,0.45)",
+          }}
+        >
+          {url.replace(/^https?:\/\//, "")}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Card ─────────────────────────────────────────────────────────────────────
 function Card({ p, featured }: { p: Project; featured?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -359,7 +313,7 @@ function Card({ p, featured }: { p: Project; featured?: boolean }) {
         setHover(false);
         setTilt({ x: 0, y: 0 });
       }}
-      className={`relative rounded-3xl overflow-hidden transition-all duration-500 ${
+      className={`relative rounded-3xl overflow-hidden flex flex-col transition-all duration-500 ${
         featured ? "lg:col-span-2" : ""
       }`}
       style={{
@@ -378,23 +332,25 @@ function Card({ p, featured }: { p: Project; featured?: boolean }) {
     >
       {/* Top gold accent line */}
       <div
-        className="absolute top-0 left-0 right-0 h-px z-10"
+        className="absolute top-0 left-0 right-0 h-px z-10 pointer-events-none"
         style={{ background: "rgba(201,168,76,0.4)" }}
       />
 
-      {/* Preview area — no fixed height/aspectRatio wrapper here */}
-      <div className="relative w-full overflow-hidden">
-        {/* Subtle zoom on hover */}
+      {/* ── Preview section ───────────────────────────────────────────── */}
+      {/*
+        We wrap browser chrome + iframe preview together so the chrome
+        is part of the flow, not overlapping the preview.
+      */}
+      <div className="relative w-full flex flex-col overflow-hidden">
+        {/* Browser chrome — always in flow, never overlapping */}
+        {!p.comingSoon && p.liveUrl && <BrowserBar url={p.liveUrl} />}
+
+        {/* Iframe preview box — scales itself, never overflows */}
         <div
-          className="w-full transition-transform duration-700"
-          style={{ transform: hover ? "scale(1.03)" : "scale(1)" }}
+          className="relative w-full overflow-hidden transition-transform duration-700"
+          style={{ transform: hover ? "scale(1.025)" : "scale(1)" }}
         >
-          <LivePreview
-            url={p.liveUrl}
-            accent={p.accent}
-            title={p.name}
-            featured={featured}
-          />
+          <LivePreview url={p.liveUrl} accent={p.accent} title={p.name} />
         </div>
 
         {/* Coming-soon overlay */}
@@ -417,69 +373,16 @@ function Card({ p, featured }: { p: Project; featured?: boolean }) {
             </span>
           </div>
         )}
-
-        {/* Fake browser address bar */}
-        {!p.comingSoon && p.liveUrl && (
-          <div
-            className="absolute top-0 left-0 right-0 z-20 flex items-center gap-2 px-3 py-2"
-            style={{
-              background: "rgba(15,14,13,0.75)",
-              backdropFilter: "blur(6px)",
-              borderBottom: "1px solid rgba(201,168,76,0.15)",
-            }}
-          >
-            {/* Traffic lights */}
-            <div className="flex gap-1.5 shrink-0">
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#FF5F57" }} />
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#FFBD2E" }} />
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#28CA41" }} />
-            </div>
-            {/* URL pill */}
-            <div
-              className="flex-1 flex items-center gap-1.5 px-3 py-0.5 rounded"
-              style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                maxWidth: 280,
-                margin: "0 auto",
-              }}
-            >
-              <svg
-                width={10}
-                height={10}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="rgba(201,168,76,0.7)"
-                strokeWidth={2.5}
-              >
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              <span
-                style={{
-                  fontFamily: "Outfit, monospace",
-                  fontSize: 10,
-                  color: "rgba(240,235,225,0.5)",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {p.liveUrl.replace(/^https?:\/\//, "")}
-              </span>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Card body */}
-      <div className="p-7 flex flex-col gap-4">
+      {/* ── Card body ─────────────────────────────────────────────────── */}
+      <div className="p-5 sm:p-6 lg:p-7 flex flex-col gap-3 flex-1">
         <h3
           style={{
             fontFamily: "Cormorant Garamond, serif",
-            fontSize: featured ? 36 : 26,
+            fontSize: featured ? "clamp(22px, 3vw, 36px)" : "clamp(18px, 2.5vw, 26px)",
             color: "#F0EBE1",
-            lineHeight: 1.1,
+            lineHeight: 1.15,
           }}
         >
           {p.name}
@@ -487,37 +390,41 @@ function Card({ p, featured }: { p: Project; featured?: boolean }) {
         <p
           style={{
             fontFamily: "Outfit",
-            fontSize: 14,
+            fontSize: "clamp(12px, 1.2vw, 14px)",
             color: "#9C9488",
-            lineHeight: 1.6,
+            lineHeight: 1.65,
           }}
         >
           {p.desc}
         </p>
+        {/* Stack tags */}
         <div className="flex flex-wrap gap-1.5">
           {p.stack.map((s) => (
             <span
               key={s}
-              className="px-2 py-0.5 rounded-full text-[10.5px]"
+              className="px-2 py-0.5 rounded-full"
               style={{
                 fontFamily: "Outfit",
+                fontSize: "clamp(9px, 1vw, 10.5px)",
                 color: "#C9A84C",
                 border: "1px solid rgba(201,168,76,0.35)",
                 letterSpacing: "0.05em",
+                whiteSpace: "nowrap",
               }}
             >
               {s}
             </span>
           ))}
         </div>
+        {/* CTA buttons */}
         {!p.comingSoon && (
-          <div className="flex gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 pt-1 mt-auto">
             {p.liveUrl && (
               <a
                 href={p.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs transition-opacity hover:opacity-80"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs transition-opacity hover:opacity-80 shrink-0"
                 style={{
                   background: "#C9A84C",
                   color: "#0F0E0D",
@@ -533,7 +440,7 @@ function Card({ p, featured }: { p: Project; featured?: boolean }) {
                 href={p.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs transition-opacity hover:opacity-70"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs transition-opacity hover:opacity-70 shrink-0"
                 style={{
                   border: "1px solid rgba(255,255,255,0.15)",
                   color: "#F0EBE1",
@@ -550,14 +457,14 @@ function Card({ p, featured }: { p: Project; featured?: boolean }) {
   );
 }
 
+// ─── Section ──────────────────────────────────────────────────────────────────
 export default function ProjectsSection() {
   return (
-    <section className="relative w-full py-32" style={{ backgroundColor: "#0F0E0D" }}>
-      <div className="relative mx-auto max-w-[1200px] px-8 flex flex-col gap-16">
+    <section className="relative w-full py-20 sm:py-28 lg:py-32" style={{ backgroundColor: "#0F0E0D" }}>
+      <div className="relative mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 flex flex-col gap-12 lg:gap-16">
+        {/* Header row */}
         <div className="flex items-end justify-between flex-wrap gap-4">
           <SectionHeading label="Work" title="Projects I've Built" align="left" />
-
-          {/* Social links */}
           <div className="flex items-center gap-3 pb-1">
             <a
               href={GITHUB_URL}
@@ -593,7 +500,8 @@ export default function ProjectsSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-min">
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
           {PROJECTS.map((p, i) => (
             <Card key={i} p={p} featured={p.featured} />
           ))}

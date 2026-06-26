@@ -7,10 +7,12 @@ import ProjectsBento   from '../src/components/ProjectsSection'
 import JourneyTimeline from '../src/components/JourneySection'
 import ServicesGrid    from '../src/components/ServicesSection'
 import ContactSection  from '../src/components/ContactSection'
+import Navbar from '../src/components/Navbar'
 
 export default function Home() {
   return (
     <main className="bg-[#0F0E0D] overflow-x-hidden">
+      <Navbar />
       <HeroSection />
       <StackSphere />
       <SkillsAnalytics />

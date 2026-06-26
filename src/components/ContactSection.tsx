@@ -23,12 +23,12 @@ const inputStyle: React.CSSProperties = {
 const socials = [
   {
     name: "GitHub",
-    href: "https://github.com/yourusername",
+    href: "https://github.com/jasper-nyambichu",
     icon: (size: number) => <GithubIcon size={size} />,
   },
   {
     name: "LinkedIn",
-    href: "https://linkedin.com/in/yourusername",
+    href: "https://www.linkedin.com/in/dickson-moseti-94968b410",
     icon: (size: number) => <LinkedinIcon size={size} />,
   },
   {
@@ -258,7 +258,7 @@ export default function ContactSection() {
                     href="mailto:your@email.com"
                     style={{ color: "#C9A84C" }}
                   >
-                    your@email.com
+                    codesjasper@email.com
                   </a>
                 </p>
               </form>
@@ -301,7 +301,7 @@ export default function ContactSection() {
               color: "#5C574F",
             }}
           >
-            © 2026 Your Name · Built with Next.js &{" "}
+            © 2026 Dickson Moseti · Built with Next.js &{" "}
             <span style={{ color: "#C9A84C" }}>♥</span>
           </p>
         </div>
